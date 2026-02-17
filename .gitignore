@@ -1,52 +1,82 @@
 # Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
 
-# dependencies
+# ──── Dependencies ────────────────────────────
 node_modules/
+package-lock.json
 
-# Environment
+# ──── Environment / Secrets ───────────────────
 .env
+.env.*
+!.env.example
 
-# Expo
+# ──── Expo ────────────────────────────────────
 .expo/
 dist/
 web-build/
 expo-env.d.ts
 
-# Server
+# ──── Server ──────────────────────────────────
 server/dist/
 server/node_modules/
 
-# Client
+# ──── Client ──────────────────────────────────
 client/node_modules/
 client/.expo/
 
-# Native
+# ──── Android / Native build outputs ──────────
+*.apk
+*.aab
+*.dex
+*.class
+client/android/app/build/
+client/android/build/
+client/android/.gradle/
+client/android/.idea/
+client/android/local.properties
+client/android/captures/
 .kotlin/
-*.orig.*
+*.hprof
+
+# ──── Keystores / Signing ─────────────────────
 *.jks
+*.keystore
 *.p8
 *.p12
 *.key
 *.mobileprovision
+*.orig.*
+*.pem
 
-# Metro
+# ──── iOS (if ever added) ─────────────────────
+/ios
+*.xcworkspace
+*.xcuserdata
+Pods/
+
+# ──── Metro ───────────────────────────────────
 .metro-health-check*
 
-# debug
+# ──── Debug logs ──────────────────────────────
 npm-debug.*
 yarn-debug.*
 yarn-error.*
 
-# macOS
+# ──── OS junk ─────────────────────────────────
 .DS_Store
-*.pem
+Thumbs.db
+Desktop.ini
 
-# local env files
-.env*.local
+# ──── IDE / Editor ────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
 
-# typescript
+# ──── TypeScript ──────────────────────────────
 *.tsbuildinfo
 
-# generated native folders
-/ios
-/android
+# ──── Misc ────────────────────────────────────
+*.log
+*.tmp
+*.bak
