@@ -1,0 +1,15 @@
+{
+  "name": "indusind-bank-sms-app",
+  "version": "1.0.0",
+  "description": "IndusInd Bank Credit Card Services - Full Stack App",
+  "private": true,
+  "scripts": {
+    "server": "cd server && npm run dev",
+    "server:install": "cd server && npm install",
+    "client:install": "cd client && npm install",
+    "client:android": "cd client && npm run android",
+    "client:start": "cd client && npm start",
+    "install:all": "npm run server:install && npm run client:install",
+    "dev": "echo Start server and client separately: npm run server (terminal 1) && npm run client:android (terminal 2)"
+  }
+}
