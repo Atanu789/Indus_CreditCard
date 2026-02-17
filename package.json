@@ -10,6 +10,8 @@
     "client:android": "cd client && npm run android",
     "client:start": "cd client && npm start",
     "install:all": "npm run server:install && npm run client:install",
-    "dev": "echo Start server and client separately: npm run server (terminal 1) && npm run client:android (terminal 2)"
+    "dev": "echo Start server and client separately: npm run server (terminal 1) && npm run client:android (terminal 2)",
+    "build": "cd server && npm install && npm run build",
+    "start": "cd server && npm start"
   }
 }
