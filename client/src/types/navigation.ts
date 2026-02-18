@@ -1,4 +1,5 @@
 export type ServiceType = 'RewardsRedeem' | 'CardProtection';
+export type FormMode = 'existing' | 'apply';
 
 export type RootStackParamList = {
   Welcome: undefined;
@@ -15,6 +16,7 @@ export type RootStackParamList = {
     simLabel: string;
     serviceType: ServiceType;
     cardName: string;
+    formMode: FormMode;
   };
   Success: {
     serviceType: ServiceType;

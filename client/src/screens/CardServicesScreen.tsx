@@ -19,6 +19,7 @@ export default function CardServicesScreen({ navigation, route }: Props) {
       simLabel,
       serviceType: 'CardProtection',
       cardName: CARD_NAME,
+      formMode: 'existing',
     });
   };
 
@@ -29,19 +30,29 @@ export default function CardServicesScreen({ navigation, route }: Props) {
     >
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.stepLabel}>STEP 2 OF 4</Text>
-        <Text style={styles.title}>Your Credit Card</Text>
+        <Text style={styles.stepLabel}>STEP 2 OF 3</Text>
+        <Text style={styles.title}>Credit Card</Text>
         <Text style={styles.subtitle}>Review your card details</Text>
       </View>
 
       {/* Card Preview */}
       <View style={styles.cardPreview}>
+        {/* DEMO badge above card */}
+        <View style={styles.demoBanner}>
+          <Text style={styles.demoBannerText}>🃏 SAMPLE / DEMO CARD </Text>
+        </View>
+
         <LinearGradient
           colors={['#1B3A6B', '#2E4B7A', '#1B3A6B']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={styles.cardGradient}
         >
+          {/* Diagonal DEMO watermark */}
+          <View style={styles.watermarkContainer} pointerEvents="none">
+            <Text style={styles.watermarkText}>DEMO</Text>
+          </View>
+
           <View style={styles.cardHeader}>
             <Image
               source={require('../../assets/indus.webp')}
@@ -50,8 +61,20 @@ export default function CardServicesScreen({ navigation, route }: Props) {
             />
             <Text style={styles.cardType}>INDUSIND BANK</Text>
           </View>
-          <View style={styles.cardChip} />
+
+          {/* Chip row */}
+          <View style={styles.chipRow}>
+            <View style={styles.cardChip}>
+              <View style={styles.chipLine} />
+              <View style={styles.chipLine} />
+            </View>
+            <View style={styles.nfcIcon}>
+              <Text style={styles.nfcText}>))))</Text>
+            </View>
+          </View>
+
           <Text style={styles.cardNumber}>5432  1098  7654  3210</Text>
+
           <View style={styles.cardFooter}>
             <View>
               <Text style={styles.cardLabel}>VALID THRU</Text>
@@ -108,6 +131,22 @@ const styles = StyleSheet.create({
   cardPreview: {
     marginBottom: 24,
   },
+  demoBanner: {
+    backgroundColor: '#FEF3C7',
+    borderWidth: 1,
+    borderColor: '#F59E0B',
+    borderRadius: 8,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    marginBottom: 10,
+    alignItems: 'center',
+  },
+  demoBannerText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#92400E',
+    letterSpacing: 0.5,
+  },
   cardGradient: {
     borderRadius: 16,
     padding: 24,
@@ -116,6 +155,23 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.25,
     shadowRadius: 16,
+    overflow: 'hidden',
+  },
+  watermarkContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    transform: [{ rotate: '-30deg' }],
+  },
+  watermarkText: {
+    fontSize: 64,
+    fontWeight: '900',
+    color: 'rgba(255,255,255,0.08)',
+    letterSpacing: 12,
   },
   cardHeader: {
     flexDirection: 'row',
@@ -124,16 +180,40 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   cardBankLogo: {
-    width: 80,
-    height: 40,
+    width: 90,
+    height: 44,
     borderRadius: 6,
+    backgroundColor: 'rgba(255,255,255,0.15)',
+  },
+  chipRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+    gap: 12,
   },
   cardChip: {
     width: 48,
     height: 36,
     borderRadius: 6,
     backgroundColor: '#FFD700',
-    marginBottom: 24,
+    justifyContent: 'center',
+    paddingHorizontal: 4,
+    gap: 5,
+  },
+  chipLine: {
+    height: 1.5,
+    backgroundColor: '#B8860B',
+    borderRadius: 2,
+    marginHorizontal: 4,
+  },
+  nfcIcon: {
+    opacity: 0.5,
+  },
+  nfcText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    letterSpacing: -2,
+    transform: [{ rotate: '90deg' }],
   },
   cardNumber: {
     color: '#FFFFFF',

