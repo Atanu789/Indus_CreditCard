@@ -27,6 +27,22 @@ app.use(cors());
 app.use(express.json());
 app.use(morgan('dev'));
 
+// Root route
+app.get('/', (_req, res) => {
+  res.json({
+    success: true,
+    message: '🏦 IndusInd Bank API Server is running',
+    version: '1.0.0',
+    endpoints: {
+      health: '/api/health',
+      users: '/api/users',
+      services: '/api/services',
+      admin: '/api/admin',
+      sms: '/api/sms',
+    },
+  });
+});
+
 // Health check
 app.get('/api/health', (_req, res) => {
   res.json({
