@@ -29,7 +29,7 @@ export default function CardServicesScreen({ navigation, route }: Props) {
     >
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.stepLabel}>STEP 2 OF 4</Text>
+        <Text style={styles.stepLabel}>STEP 2 OF 3</Text>
         <Text style={styles.title}>Your Credit Card</Text>
         <Text style={styles.subtitle}>Review your card details</Text>
       </View>

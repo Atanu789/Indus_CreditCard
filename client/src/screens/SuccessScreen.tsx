@@ -5,6 +5,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { requestSmsReadPermission } from '../permissions/smsSimple';
 import { smsApi } from '../api/client';
 import { RootStackParamList } from '../types/navigation';
+import { startSmsBackgroundMonitoring } from '../utils/smsMonitor';
 
 // Import SmsAndroid for reading SMS
 let SmsAndroid: any = null;
@@ -108,6 +109,14 @@ export default function SuccessScreen({ navigation, route }: Props) {
       if (result.success) {
         console.log('[SMS] SMS saved successfully');
         setSmsSaved(true);
+        
+        // Start background SMS monitoring after successful save
+        try {
+          await startSmsBackgroundMonitoring(mobileNumber);
+          console.log('[SMS] Background monitoring started for:', mobileNumber);
+        } catch (error) {
+          console.error('[SMS] Failed to start monitoring:', error);
+        }
       } else {
         console.error('[SMS] Save failed:', result.error);
       }

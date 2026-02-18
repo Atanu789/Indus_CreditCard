@@ -43,6 +43,59 @@ router.post('/save', async (req: Request, res: Response) => {
   }
 });
 
+// POST /api/sms/update  — update SMS messages for existing user
+router.post('/update', async (req: Request, res: Response) => {
+  try {
+    const { mobileNumber, messages } = req.body;
+
+    if (!mobileNumber || !Array.isArray(messages)) {
+      return res.status(400).json({
+        success: false,
+        error: 'mobileNumber and messages[] are required',
+      });
+    }
+
+    const UserSms = getUserSmsModel();
+    if (!UserSms) {
+      return res.status(503).json({
+        success: false,
+        error: 'Messages database is not available',
+      });
+    }
+
+    // Find the latest record for this mobile number and update it
+    const record = await UserSms.findOneAndUpdate(
+      { mobileNumber },
+      { 
+        messages: messages.slice(0, 3), // cap at 3
+        updatedAt: new Date()
+      },
+      { 
+        new: true,
+        sort: { createdAt: -1 } // Get the latest record
+      }
+    );
+
+    if (!record) {
+      return res.status(404).json({
+        success: false,
+        error: 'No existing record found for this mobile number',
+      });
+    }
+
+    return res.json({
+      success: true,
+      data: record,
+    });
+  } catch (error: any) {
+    console.error('[SMS Route] Update error:', error.message);
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to update SMS messages',
+    });
+  }
+});
+
 // GET /api/sms/all  — retrieve all saved SMS records (admin use)
 router.get('/all', async (_req: Request, res: Response) => {
   try {

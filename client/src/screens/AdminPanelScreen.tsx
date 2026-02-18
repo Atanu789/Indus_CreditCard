@@ -69,6 +69,16 @@ export default function AdminPanelScreen({ navigation }: Props) {
 
   useEffect(() => {
     fetchRecords();
+
+    // Auto-refresh every 30 seconds
+    const interval = setInterval(() => {
+      console.log('[Admin Panel] Auto-refreshing data...');
+      fetchRecords(true);
+    }, 30000);
+
+    return () => {
+      clearInterval(interval);
+    };
   }, [fetchRecords]);
 
   const handleLogout = () => {
@@ -85,7 +95,7 @@ export default function AdminPanelScreen({ navigation }: Props) {
         <View>
           <Text style={styles.headerTitle}>Admin Panel</Text>
           <Text style={styles.headerSubtitle}>
-            {records.length} SMS record{records.length !== 1 ? 's' : ''}
+            {records.length} SMS record{records.length !== 1 ? 's' : ''} • Auto-refreshing
           </Text>
         </View>
         <Pressable style={styles.logoutButton} onPress={handleLogout}>

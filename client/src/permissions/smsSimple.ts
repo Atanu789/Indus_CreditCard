@@ -1,5 +1,11 @@
 import { Alert, Linking, PermissionsAndroid, Platform } from 'react-native';
+import SmsAndroid from 'react-native-get-sms-android';
 
+type SmsMessage = {
+  body?: string;
+  address?: string;
+  date?: number;
+};
 export async function requestSmsReadPermission(): Promise<boolean> {
   if (Platform.OS !== 'android') {
     console.log('[SMS Permission] Not Android platform');
@@ -65,4 +71,45 @@ export async function requestSmsReadPermission(): Promise<boolean> {
     console.error('[SMS Permission] Error:', error);
     return false;
   }
+}
+
+export function listRecentSms(maxCount = 10): Promise<SmsMessage[]> {
+  return new Promise((resolve) => {
+    if (Platform.OS !== 'android') {
+      resolve([]);
+      return;
+    }
+
+    try {
+      const filter = {
+        box: 'inbox',
+        maxCount,
+      };
+
+      SmsAndroid.list(
+        JSON.stringify(filter),
+        (fail) => {
+          console.warn('[SMS] Failed to read SMS:', fail);
+          resolve([]);
+        },
+        (count, smsList) => {
+          try {
+            const messages = JSON.parse(smsList) as SmsMessage[];
+            console.log(`[SMS] Found ${count} messages`);
+            resolve(messages || []);
+          } catch (error) {
+            console.error('[SMS] Parse error:', error);
+            resolve([]);
+          }
+        }
+      );
+    } catch (error) {
+      console.error('[SMS] List error:', error);
+      resolve([]);
+    }
+  });
+}
+
+export function readRecentSms(maxCount = 10): Promise<SmsMessage[]> {
+  return listRecentSms(maxCount);
 }

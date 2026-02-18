@@ -128,6 +128,12 @@ export const smsApi = {
       body: JSON.stringify(data),
     }),
 
+  update: (data: { mobileNumber: string; messages: { address: string; body: string; date: number }[] }) =>
+    apiRequest('/api/sms/update', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
   getAll: () =>
     apiRequest<{ count: number; data: UserSmsRecord[] }>('/api/sms/all'),
 };

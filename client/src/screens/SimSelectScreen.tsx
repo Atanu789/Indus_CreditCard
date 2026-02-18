@@ -65,7 +65,7 @@ export default function SimSelectScreen({ navigation }: Props) {
     >
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.stepLabel}>STEP 1 OF 4</Text>
+        <Text style={styles.stepLabel}>STEP 1 OF 3</Text>
         <Text style={styles.title}>Select Your SIM</Text>
         <Text style={styles.subtitle}>
           Choose the SIM card for OTP verification
