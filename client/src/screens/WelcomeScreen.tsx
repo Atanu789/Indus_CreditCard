@@ -1,7 +1,7 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Alert, Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { requestSmsPermission } from '../permissions/sms';
+import { requestSMSPermissions } from '../utils/permissions';
 import { RootStackParamList } from '../types/navigation';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Welcome'>;
@@ -12,7 +12,7 @@ const INDUS_DARK = '#0F1F3D';
 
 export default function WelcomeScreen({ navigation }: Props) {
   const handleGetStarted = async () => {
-    const granted = await requestSmsPermission();
+    const granted = await requestSMSPermissions();
     if (granted) {
       navigation.navigate('SimSelect');
     } else {
@@ -42,19 +42,20 @@ export default function WelcomeScreen({ navigation }: Props) {
 
       {/* Header with Logo */}
       <View style={styles.logoContainer}>
-        <LinearGradient
-          colors={[INDUS_BLUE, '#2A4A7F']}
-          style={styles.logoBox}
-        >
-          <Text style={styles.logoText}>IL</Text>
-        </LinearGradient>
+        <View style={styles.logoBox}>
+          <Image
+            source={require('../../assets/indus_logo.png')}
+            style={styles.logoImage}
+            resizeMode="contain"
+          />
+        </View>
         <Text style={styles.bankName}>IndusInd Bank</Text>
         <Text style={styles.tagline}>Banking Made Simple</Text>
       </View>
 
       {/* Intro Content */}
       <View style={styles.content}>
-        <Text style={styles.title}>Credit Card{' \n'}Services</Text>
+        <Text style={styles.title}>Credit Card Services</Text>
         <Text style={styles.subtitle}>
           Manage your credit cards and access exclusive benefits
         </Text>
@@ -128,17 +129,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 16,
+    backgroundColor: '#FFFFFF',
     elevation: 6,
     shadowColor: INDUS_BLUE,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
     shadowRadius: 8,
   },
-  logoText: {
-    color: '#FFFFFF',
-    fontSize: 28,
-    fontWeight: '800',
-    letterSpacing: 1,
+  logoImage: {
+    width: 100,
+    height: 100,
   },
   bankName: {
     fontSize: 18,

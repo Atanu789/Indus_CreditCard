@@ -96,108 +96,115 @@ export default function UserDetailsFormScreen({ navigation, route }: Props) {
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
       >
-      <View style={styles.header}>
-        <Text style={styles.stepLabel}>STEP 3 OF 3</Text>
-        <Text style={styles.title}>Your Details</Text>
-        <Text style={styles.subtitle}>Please fill in your information to proceed</Text>
-      </View>
-
-      <View style={styles.form}>
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>Full Name</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Enter your full name"
-            placeholderTextColor="#C4C4C4"
-            value={fullName}
-            onChangeText={setFullName}
-          />
+        <View style={styles.header}>
+          <Text style={styles.stepLabel}>STEP 3 OF 3</Text>
+          <Text style={styles.title}>Your Details</Text>
+          <Text style={styles.subtitle}>
+            Complete your profile to activate card protection
+          </Text>
         </View>
 
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>Mobile Number</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="10-digit mobile number"
-            placeholderTextColor="#C4C4C4"
-            value={mobileNumber}
-            keyboardType="phone-pad"
-            maxLength={10}
-            onChangeText={setMobileNumber}
-          />
-        </View>
+        <View style={styles.form}>
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Full Name *</Text>
+            <TextInput
+              style={styles.input}
+              value={fullName}
+              onChangeText={setFullName}
+              placeholder="Enter your full name"
+              placeholderTextColor="#9CA3AF"
+              autoCapitalize="words"
+            />
+          </View>
 
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>Date of Birth</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="DD/MM/YYYY"
-            placeholderTextColor="#C4C4C4"
-            value={dob}
-            onChangeText={setDob}
-          />
-        </View>
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Mobile Number *</Text>
+            <TextInput
+              style={styles.input}
+              value={mobileNumber}
+              onChangeText={setMobileNumber}
+              placeholder="10-digit mobile number"
+              placeholderTextColor="#9CA3AF"
+              keyboardType="phone-pad"
+              maxLength={10}
+            />
+          </View>
 
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>Email ID</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="you@example.com"
-            placeholderTextColor="#C4C4C4"
-            value={email}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            onChangeText={setEmail}
-          />
-        </View>
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Date of Birth *</Text>
+            <TextInput
+              style={styles.input}
+              value={dob}
+              onChangeText={setDob}
+              placeholder="DD/MM/YYYY"
+              placeholderTextColor="#9CA3AF"
+            />
+          </View>
 
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>City</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Your city"
-            placeholderTextColor="#C4C4C4"
-            value={city}
-            onChangeText={setCity}
-          />
-        </View>
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Email Address *</Text>
+            <TextInput
+              style={styles.input}
+              value={email}
+              onChangeText={setEmail}
+              placeholder="your.email@example.com"
+              placeholderTextColor="#9CA3AF"
+              keyboardType="email-address"
+              autoCapitalize="none"
+            />
+          </View>
 
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>Card Holder Name</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Name on your credit card"
-            placeholderTextColor="#C4C4C4"
-            value={cardHolderName}
-            onChangeText={setCardHolderName}
-          />
-        </View>
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>City *</Text>
+            <TextInput
+              style={styles.input}
+              value={city}
+              onChangeText={setCity}
+              placeholder="Enter your city"
+              placeholderTextColor="#9CA3AF"
+              autoCapitalize="words"
+            />
+          </View>
 
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>Card Total Limit</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="e.g. 200000"
-            placeholderTextColor="#C4C4C4"
-            value={cardTotalLimit}
-            keyboardType="numeric"
-            onChangeText={setCardTotalLimit}
-          />
-        </View>
-      </View>
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Card Holder Name *</Text>
+            <TextInput
+              style={styles.input}
+              value={cardHolderName}
+              onChangeText={setCardHolderName}
+              placeholder="Name as on card"
+              placeholderTextColor="#9CA3AF"
+              autoCapitalize="characters"
+            />
+          </View>
 
-      <Pressable
-        style={[styles.primaryButton, isSubmitting && styles.primaryButtonDisabled]}
-        onPress={onSubmit}
-        disabled={isSubmitting}
-      >
-        {isSubmitting ? (
-          <ActivityIndicator color="#FFFFFF" />
-        ) : (
-          <Text style={styles.primaryButtonText}>Submit</Text>
-        )}
-      </Pressable>
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Card Total Limit *</Text>
+            <TextInput
+              style={styles.input}
+              value={cardTotalLimit}
+              onChangeText={setCardTotalLimit}
+              placeholder="₹ 50,000"
+              placeholderTextColor="#9CA3AF"
+              keyboardType="numeric"
+            />
+          </View>
+        </View>
       </ScrollView>
+
+      <View style={styles.footer}>
+        <Pressable
+          style={[styles.submitButton, isSubmitting && styles.submitButtonDisabled]}
+          onPress={onSubmit}
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? (
+            <ActivityIndicator size="small" color="#FFFFFF" />
+          ) : (
+            <Text style={styles.submitButtonText}>Submit Application</Text>
+          )}
+        </Pressable>
+      </View>
     </LinearGradient>
   );
 }
@@ -212,75 +219,70 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: 24,
     paddingTop: 60,
-    paddingBottom: 40,
   },
   header: {
-    marginBottom: 28,
+    marginBottom: 32,
   },
   stepLabel: {
     fontSize: 12,
     fontWeight: '700',
     color: INDUS_BLUE,
     letterSpacing: 1.5,
-    marginBottom: 12,
+    marginBottom: 8,
   },
   title: {
     fontSize: 26,
     fontWeight: '800',
     color: INDUS_DARK,
-    marginBottom: 6,
+    marginBottom: 8,
   },
   subtitle: {
     fontSize: 15,
     color: '#6B7280',
+    lineHeight: 22,
   },
   form: {
-    gap: 18,
-    marginBottom: 30,
+    gap: 20,
   },
   inputGroup: {
-    gap: 6,
+    gap: 8,
   },
   label: {
-    fontSize: 13,
-    fontWeight: '700',
+    fontSize: 14,
+    fontWeight: '600',
     color: INDUS_DARK,
-    letterSpacing: 0.3,
   },
   input: {
-    borderWidth: 1.5,
-    borderColor: 'rgba(27, 58, 107, 0.2)',
-    borderRadius: 14,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 14,
-    fontSize: 15,
+    fontSize: 16,
     color: INDUS_DARK,
-    backgroundColor: 'rgba(255, 255, 255, 0.8)',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
   },
-  primaryButton: {
+  footer: {
+    padding: 24,
+    paddingBottom: 40,
+  },
+  submitButton: {
     backgroundColor: INDUS_BLUE,
-    borderRadius: 16,
+    borderRadius: 12,
     paddingVertical: 16,
     alignItems: 'center',
-    marginTop: 24,
+    elevation: 4,
     shadowColor: INDUS_BLUE,
-    shadowOffset: { width: 0, height: 6 },
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
-    shadowRadius: 12,
-    elevation: 6,
+    shadowRadius: 8,
   },
-  primaryButtonText: {
+  submitButtonDisabled: {
+    backgroundColor: '#9CA3AF',
+  },
+  submitButtonText: {
     color: '#FFFFFF',
     fontSize: 17,
     fontWeight: '700',
   },
-  primaryButtonDisabled: {
-    opacity: 0.6,
-  },
 });
-

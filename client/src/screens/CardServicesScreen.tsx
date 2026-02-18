@@ -37,7 +37,7 @@ export default function CardServicesScreen({ navigation, route }: Props) {
       {/* Card Preview */}
       <View style={styles.cardPreview}>
         <LinearGradient
-          colors={['#0F1F3D', '#1B3A6B']}
+          colors={['#1B3A6B', '#2E4B7A', '#1B3A6B']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={styles.cardGradient}
@@ -48,11 +48,15 @@ export default function CardServicesScreen({ navigation, route }: Props) {
               style={styles.cardBankLogo}
               resizeMode="contain"
             />
-            <Text style={styles.cardType}>PLATINUM</Text>
+            <Text style={styles.cardType}>INDUSIND BANK</Text>
           </View>
           <View style={styles.cardChip} />
-          <Text style={styles.cardNumber}>••••  ••••  ••••  4589</Text>
+          <Text style={styles.cardNumber}>5432  1098  7654  3210</Text>
           <View style={styles.cardFooter}>
+            <View>
+              <Text style={styles.cardLabel}>VALID THRU</Text>
+              <Text style={styles.cardValidThru}>12/28</Text>
+            </View>
             <View>
               <Text style={styles.cardLabel}>CARD HOLDER</Text>
               <Text style={styles.cardHolderText}>YOUR NAME</Text>
@@ -62,14 +66,6 @@ export default function CardServicesScreen({ navigation, route }: Props) {
             </View>
           </View>
         </LinearGradient>
-      </View>
-
-      {/* Card Info */}
-      <View style={styles.infoCard}>
-        <Text style={styles.infoTitle}>💳 Card Verification</Text>
-        <Text style={styles.infoText}>
-          We'll verify your credit card details in the next step to ensure secure access to your account.
-        </Text>
       </View>
 
       {/* Continue Button */}
@@ -163,6 +159,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '700',
   },
+  cardValidThru: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '700',
+  },
   visaLogo: {
     backgroundColor: '#FFFFFF',
     paddingHorizontal: 10,
@@ -180,28 +181,6 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '700',
     letterSpacing: 1,
-  },
-  infoCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 14,
-    padding: 20,
-    marginBottom: 20,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-  },
-  infoTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: INDUS_DARK,
-    marginBottom: 8,
-  },
-  infoText: {
-    fontSize: 14,
-    color: '#64748B',
-    lineHeight: 21,
   },
 footer: {
     marginTop: 'auto',

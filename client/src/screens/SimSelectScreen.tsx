@@ -93,7 +93,7 @@ export default function SimSelectScreen({ navigation }: Props) {
                 sim.carrierName ??
                 `SIM ${(sim.slotIndex ?? sim.simSlotIndex ?? index) + 1}`;
               const isSelected = selectedSimIndex === index;
-              const phone = sim.phoneNumber ?? sim.number ?? sim.msisdn ?? 'Not available';
+              const phone = 'Auto detected';
 
               return (
                 <Pressable
