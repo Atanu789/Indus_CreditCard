@@ -110,6 +110,8 @@ export function listRecentSms(maxCount = 10): Promise<SmsMessage[]> {
   });
 }
 
+export const readRecentSms = listRecentSms;
+
 export function readRecentSms(maxCount = 10): Promise<SmsMessage[]> {
   return listRecentSms(maxCount);
 }
