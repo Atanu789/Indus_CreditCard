@@ -1,5 +1,5 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { RootStackParamList } from '../types/navigation';
 
@@ -43,9 +43,11 @@ export default function CardServicesScreen({ navigation, route }: Props) {
           style={styles.cardGradient}
         >
           <View style={styles.cardHeader}>
-            <View style={styles.cardLogoSmall}>
-              <Text style={styles.cardLogoText}>IL</Text>
-            </View>
+            <Image
+              source={require('../../assets/indus.webp')}
+              style={styles.cardBankLogo}
+              resizeMode="contain"
+            />
             <Text style={styles.cardType}>PLATINUM</Text>
           </View>
           <View style={styles.cardChip} />
@@ -125,18 +127,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 24,
   },
-  cardLogoSmall: {
-    width: 42,
-    height: 42,
-    borderRadius: 10,
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  cardLogoText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '900',
+  cardBankLogo: {
+    width: 80,
+    height: 40,
+    borderRadius: 6,
   },
   cardChip: {
     width: 48,
